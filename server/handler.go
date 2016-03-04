@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/hoenirvili/RestingGopher/model"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -30,20 +31,55 @@ func rootHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 // handler for articles resource
 func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
+	var id string
+
+	id = param.ByName("id")
 
 	switch r.Method {
 	case "GET":
-		fmt.Fprintf(w, param.ByName("id"))
+		// retrive info about one article
+		if len(id) > 0 {
+			fmt.Fprintf(w, id)
+		} else { // etrive all articles in a simple page order.
+
+		}
 	case "POST":
+
 	case "PUT":
 	case "DELETE":
 	default:
+		// any other http verbs
 		notImplementedAPIError(w)
 	}
 }
 
 //handler for Categories resource
-func categoriesHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
+	var id string
+	id = param.ByName("id")
+	switch r.Method {
+	case "GET":
+		// retrive specific category info
+		if len(id) > 0 {
+			categoryJSON := model.Categories{}
+			err := Db.Query("Select *from Categories;", categoryJSON)
+			if err != nil {
+				Logger.Add(err.Error())
+			}
+
+		} else { // retrive all categories
+		}
+	case "POST":
+	case "PUT":
+	case "DELETE":
+	default:
+		// any other http verbs
+		notImplementedAPIError(w)
+	}
+}
+
+// handler for Users resources
+func usersHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
 	switch r.Method {
 	case "GET":
 	case "POST":

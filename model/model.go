@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package models
+package model
 
 import (
 	"database/sql"
+	"fmt"
 	// mysql driver
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -52,7 +53,13 @@ func (d *DB) Close() {
 }
 
 // Query the databse returing in a serialized json format
-func (d DB) Query(queryStmt string, data interface{}) {
+func (d DB) Query(queryStmt string, data interface{}) error {
+	err := d.handler.Ping()
+	if err != nil {
+		return &ErrSQL{Message: fmt.Sprintf("Connection not set")}
+	}
+
+	return nil
 	// rows, err := d.handler.Query(queryStmt)
 	// if err != nil {
 	//

@@ -18,6 +18,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/hoenirvili/RestingGopher/model"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -73,8 +74,13 @@ func getRoutes() *httprouter.Router {
 func Start() {
 	// make just a new logger
 	Logger = newLogger()
+
+	Db, err := model.NewOpen("mysql", username+password+dbName)
+	if err != nil {
+		Logger.Add(err.Error())
+	}
 	// start the server
-	err := http.ListenAndServe(domain+port, getRoutes())
+	err = http.ListenAndServe(domain+port, getRoutes())
 	if err != nil {
 		log.Fatal(err)
 	}

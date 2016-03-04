@@ -14,7 +14,9 @@
 
 package main
 
-import "github.com/hoenirvili/RestingGopher/server"
+import (
+	"github.com/hoenirvili/RestingGopher/server"
+)
 
 func main() {
 	// Start server
