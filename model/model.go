@@ -73,9 +73,9 @@ func (d DB) Query(queryStmt string, args ...interface{}) (*sql.Rows, error) {
 		err  error
 	)
 	if len(args) > 0 {
-		rows, err = d.handler.Query(queryStmt, args)
+		rows, err = d.handler.Query(queryStmt, args...)
 		if err != nil {
-			return nil, &ErrSQL{Message: fmt.Sprintf("Error query : %s", queryStmt)}
+			return nil, &ErrSQL{Message: fmt.Sprintf("Error query  : %s with args %+v", queryStmt, args)}
 		}
 	} else {
 		rows, err = d.handler.Query(queryStmt)
@@ -85,4 +85,36 @@ func (d DB) Query(queryStmt string, args ...interface{}) (*sql.Rows, error) {
 	}
 
 	return rows, err
+}
+
+// Prepare query to be execed
+func (d DB) Prepare(queryStmt string) (*sql.Stmt, error) {
+	stmt, err := d.handler.Prepare(queryStmt)
+	if err != nil {
+		return nil, &ErrSQL{Message: fmt.Sprintf("Error query: %s", queryStmt)}
+	}
+	return stmt, nil
+}
+
+// Exec query direct without bothering about the results
+func (d DB) Exec(queryStmt string, args ...interface{}) error {
+	_, err := d.handler.Exec(queryStmt, args...)
+	if err != nil {
+		return &ErrSQL{Message: fmt.Sprintf("Error query : %s", queryStmt)}
+	}
+	return nil
+}
+
+// ExecStmt execute query with the prepare binding stmt
+func (d DB) ExecStmt(stmt *sql.Stmt, args ...interface{}) error {
+	_, err := stmt.Exec(args...)
+	if err != nil {
+		return &ErrSQL{Message: fmt.Sprintf("Error prepare stmt exec with params ")}
+	}
+	defer func() {
+		if err = stmt.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	return nil
 }

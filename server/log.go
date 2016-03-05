@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 )
 
 // Logger struct has methods for logging warnings and erros
@@ -48,5 +47,5 @@ func (l *logger) Close() {
 
 // Add writes the msg to log file
 func (l logger) Add(logmsg string) {
-	log.Println(fmt.Sprintf("[SERVER %s] %s", time.Now().Format(time.RFC850), logmsg))
+	log.Println(fmt.Sprintf("[SERVER ] %s", logmsg))
 }

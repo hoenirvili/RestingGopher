@@ -35,14 +35,17 @@ func CategoriesJSON(rows *sql.Rows) ([]byte, error) {
 	}
 
 	// check if the row.Next() exited from internal error not EOF
-	if err := rows.Err(); err != nil {
+	err := rows.Err()
+	if err != nil {
 		return nil, &ErrSQL{Message: fmt.Sprintf("Error encountered after looping through rows")}
 	}
 
 	// put back the connection in the pool
-	if err := rows.Close(); err != nil {
-		panic(err)
-	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
 	return json.MarshalIndent(NewPayload(data), "", " ")
 }

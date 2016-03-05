@@ -18,11 +18,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 )
 
 var (
-	errHighBitSet = errors.New("High bit set")
-	errNotSet     = errors.New("Params not set")
+	errHighBitSet  = errors.New("High bit set")
+	errParamNotSet = errors.New("Params not set")
 )
 
 // DefaultInternalError JSON string response
@@ -67,8 +68,12 @@ func (e ErrServer) JSON() []byte {
 
 // internalApiError sends JSON response with error message and header 500
 func internalAPIError(w http.ResponseWriter) {
-	// prepare header content type
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	// is header is not set
+	if !(strings.Contains(w.Header().Get("Content-Type"),
+		"application/json")) {
+		// prepare header content type
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	}
 	// prepare   status code
 	w.WriteHeader(http.StatusInternalServerError) // 500
 	// Make new body json response
@@ -80,8 +85,11 @@ func internalAPIError(w http.ResponseWriter) {
 
 // notFoundResource
 func notFoundAPIError(w http.ResponseWriter) {
-	// prepare header content-type
-	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	// if header is not set
+	if !(strings.Contains(w.Header().Get("Content-Type"), "application/json")) {
+		// prepare header content-type
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	}
 	// prepare  status code
 	w.WriteHeader(http.StatusNotFound) //404
 	// Make newbody json response
@@ -92,8 +100,11 @@ func notFoundAPIError(w http.ResponseWriter) {
 }
 
 func notImplementedAPIError(w http.ResponseWriter) {
-	// prepare header content-type
-	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	// if header is not set
+	if !(strings.Contains(w.Header().Get("Content-Type"), "application/json")) {
+		// prepare header content-type
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	}
 	// prepare  status code
 	w.WriteHeader(http.StatusNotImplemented) //503
 	// make newbody json response
@@ -104,13 +115,31 @@ func notImplementedAPIError(w http.ResponseWriter) {
 }
 
 func toLargeAPINumberError(w http.ResponseWriter) {
-	// prepare header content-type
-	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	// if header is not set
+	if !(strings.Contains(w.Header().Get("Content-Type"), "application/json")) {
+		// prepare header content-type
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	}
 	// prepare  status code
 	w.WriteHeader(http.StatusNotAcceptable) //406
 	// make newbody json response
 	body := NewErrServer("The number of the resource passed is to large.API can't hadle numbers larger than 9223372036854775807").JSON()
 	if _, err := w.Write(body); err != nil {
 		Logger.Add("Number of the resource passed is to large Write to response body failed")
+	}
+}
+
+func appropriateHeaderError(w http.ResponseWriter) {
+	// if header is not set
+	if !(strings.Contains(w.Header().Get("Content-Type"), "application/json")) {
+		// prepare header content-type
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	}
+	// prepare  status code
+	w.WriteHeader(http.StatusNotAcceptable) //406
+	// make newbody json response
+	body := NewErrServer("Please enter a valid Content-Type ! This api just implements JSON request/response").JSON()
+	if _, err := w.Write(body); err != nil {
+		Logger.Add("Can't write to response , content-type api error")
 	}
 }

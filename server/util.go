@@ -31,11 +31,11 @@ func resourceID(id string) (uint64, error) {
 			return 0, err
 		}
 		// test if the high bit is set
-		if intID&(1<<63) != 0x0 {
+		if toHighSet(intID) {
 			return 0, errHighBitSet
 		}
 	} else {
-		return 0, errNotSet
+		return 0, errParamNotSet
 	}
 
 	// everything is fine 0,nil
@@ -46,4 +46,12 @@ func logIT(err error) {
 	if err != nil {
 		Logger.Add(err.Error())
 	}
+}
+
+func toHighSet(n uint64) bool {
+	flag := false
+	if n&(1<<63) != 0x0 {
+		flag = true
+	}
+	return flag
 }
