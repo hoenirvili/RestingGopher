@@ -105,7 +105,7 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 					// write json response
 					if _, err := w.Write(data); err != nil {
 						//log server error
-						Logger.Add("[POST] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
+						Logger.Add("[PUT] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
 					}
 				}
 				defer func() {
@@ -119,7 +119,7 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 		default:
 			internalAPIError(w)
 		}
-
+	// we have valid ID
 	case nil:
 		switch r.Method {
 		case "GET":
@@ -141,6 +141,47 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 			if _, err := w.Write(data); err != nil {
 				//log server error
 				Logger.Add("[GET] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
+			}
+
+		case "PUT":
+			resourceQuery = "UPDATE Category SET  Name = ? WHERE ID_Category = ?"
+			if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+				// new payload
+				payload := CategoryPayload{}
+				// decode into paylaod
+				if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+					Logger.Add("Can't decode json post category request")
+				}
+				// process the payload
+				if payload.Data.ID != 0 && toHighSet(payload.Data.ID) {
+					toLargeAPINumberError(w)
+				} else { // make change post here
+					// prepare query
+					stmt, err := Database.Prepare(resourceQuery)
+					logIT(err) // log it if err
+					// exec stmt after prepare
+					err = Database.ExecStmt(stmt, payload.Data.Name, id)
+					logIT(err) // log it if err
+					// select the new row created
+					rows, err := Database.Query("Select *FROM Category WHERE Name = ? ", payload.Data.Name)
+					logIT(err) // log it if err
+					// if one/many rows are the same return it
+					data, err := model.CategoriesJSON(rows)
+					logIT(err) // log it if err
+					// prepare status codes
+					w.WriteHeader(http.StatusCreated)
+					// write json response
+					if _, err := w.Write(data); err != nil {
+						//log server error
+						Logger.Add("[PUT] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
+					}
+				}
+				defer func() {
+					err := r.Body.Close()
+					logIT(err)
+				}()
+			} else { // bad content type request
+				appropriateHeaderError(w)
 			}
 		default:
 			internalAPIError(w)
