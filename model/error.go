@@ -14,12 +14,20 @@
 
 package model
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // ErrSQL struct for internal purpose error handleing
 type ErrSQL struct {
 	Message string
 }
+
+var (
+	// ErrNoContent no body response sql interogation
+	ErrNoContent = errors.New("No content found")
+)
 
 //Error implement error interface
 func (e ErrSQL) Error() string {

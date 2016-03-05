@@ -53,6 +53,13 @@ func OneCategoryJSON(databse DB, queryStmt string, arg interface{}) ([]byte, err
 	h := databse.Handler()
 	err := h.QueryRow(queryStmt, arg).Scan(&holder.ID, &holder.Name)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			data, err := json.MarshalIndent(NewPayload("The request on this resource is not found"), "", " ")
+			if err != nil {
+				return nil, err
+			}
+			return data, ErrNoContent
+		}
 		return nil, &ErrSQL{Message: fmt.Sprintf("Error read row from single query %s", queryStmt)}
 	}
 	return json.MarshalIndent(NewPayload(holder), "", " ")

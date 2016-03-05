@@ -80,13 +80,21 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 		switch r.Method {
 		case "GET":
 			data, err := model.OneCategoryJSON(Database, resourceQuery, id)
-			logIT(err)
+			//think that we have a good response back from sql
+			status := http.StatusOK
+			// if the response if empty
+			if err == model.ErrNoContent {
+				// prepare  status code
+				status = http.StatusNotFound
+			} else { // other error
+				logIT(err)
+			}
 
 			// prepare header content-type
 			w.Header().Add("Content-Type", "application/json; charset=utf-8")
 
 			// prepare  status code
-			w.WriteHeader(http.StatusOK)
+			w.WriteHeader(status)
 
 			// make newbody json response
 			if _, err := w.Write(data); err != nil {
