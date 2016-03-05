@@ -55,5 +55,5 @@ func OneCategoryJSON(databse DB, queryStmt string, arg interface{}) ([]byte, err
 	if err != nil {
 		return nil, &ErrSQL{Message: fmt.Sprintf("Error read row from single query %s", queryStmt)}
 	}
-	return json.MarshalIndent(holder, "", " ")
+	return json.MarshalIndent(NewPayload(holder), "", " ")
 }
