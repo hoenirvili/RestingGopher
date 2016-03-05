@@ -27,11 +27,6 @@ type logger struct {
 	file *os.File
 }
 
-var (
-	//Logger global way to log things
-	Logger logger
-)
-
 // NewLogger instance
 func newLogger() logger {
 	f, err := os.OpenFile("server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)

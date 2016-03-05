@@ -39,67 +39,50 @@ type DB struct {
 // basically returns a db object to make a connection to
 // mysql/maria db
 func NewOpen(dbtype, auth string) (DB, error) {
+
 	db, err := sql.Open(dbtype, auth)
+	if err != nil {
+		return DB{db}, &ErrSQL{Message: fmt.Sprintf("Can't make new open handler to mysql database...")}
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return DB{db}, &ErrSQL{Message: fmt.Sprintf("Connection not set")}
+	}
+
 	return DB{db}, err
+}
+
+// Handler get *sql.DB handler
+func (d DB) Handler() *sql.DB {
+	return d.handler
 }
 
 // Close the handler
 // use with defer stmts
 func (d *DB) Close() {
 	if err := d.handler.Close(); err != nil {
-		//TODO better way to handle unexpected error on close
 		panic(err)
 	}
 }
 
-// Query the databse returing in a serialized json format
-func (d DB) Query(queryStmt string, data interface{}) error {
-	err := d.handler.Ping()
-	if err != nil {
-		return &ErrSQL{Message: fmt.Sprintf("Connection not set")}
+// Query the databse returing the ptr to sql.Rows object to consume it
+func (d DB) Query(queryStmt string, args ...interface{}) (*sql.Rows, error) {
+	var (
+		rows *sql.Rows
+		err  error
+	)
+	if len(args) > 0 {
+		rows, err = d.handler.Query(queryStmt, args)
+		if err != nil {
+			return nil, &ErrSQL{Message: fmt.Sprintf("Error query : %s", queryStmt)}
+		}
+	} else {
+		rows, err = d.handler.Query(queryStmt)
+		if err != nil {
+			return nil, &ErrSQL{Message: fmt.Sprintf("Error query : %s", queryStmt)}
+		}
 	}
 
-	return nil
-	// rows, err := d.handler.Query(queryStmt)
-	// if err != nil {
-	//
-	// }
+	return rows, err
 }
-
-// func StartConnSql() error {
-// 	db, err := sql.Open("mysql", username+password+dbName)
-// 	if err != nil {
-// 		return &ErrSql{fmt.Sprintf("%s\n", err)}
-// 	}
-// 	// Validate connection
-// 	err = db.Ping()
-// 	if err != nil {
-// 		return &ErrSql{fmt.Sprintf("%s\n", err)}
-// 	}
-//
-// 	defer func() {
-// 		if err = db.Close(); err != nil {
-// 			panic(err)
-// 		}
-// 	}()
-//
-// 	prep, errPrep := db.Query("SELECT *FROM Category")
-//
-// 	if errPrep != nil {
-// 		panic(errPrep)
-// 	}
-//
-// 	for prep.Next() {
-// 		var idCateg int
-// 		var name string
-// 		err = prep.Scan(&idCateg, &name)
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 		fmt.Println(idCateg)
-// 		fmt.Println(name)
-// 	}
-//
-// 	return nil
-//
-// }

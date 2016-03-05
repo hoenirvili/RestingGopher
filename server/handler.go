@@ -22,63 +22,95 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// handler for root resource
+//
+// rootHandler for root resource
+//
 func rootHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// w.Header().Add("Content-Type", "plain/text; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Welcome to my REST API build on GO !")
 }
 
+//
 // handler for articles resource
+//
 func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
-	var id string
-
-	id = param.ByName("id")
-
-	switch r.Method {
-	case "GET":
-		// retrive info about one article
-		if len(id) > 0 {
-			fmt.Fprintf(w, id)
-		} else { // etrive all articles in a simple page order.
-
-		}
-	case "POST":
-
-	case "PUT":
-	case "DELETE":
-	default:
-		// any other http verbs
-		notImplementedAPIError(w)
-	}
+	fmt.Fprintf(w, "artcile resource %s", param.ByName("id"))
 }
 
-//handler for Categories resource
+//
+//categoriesHandler for categories resource
+//
 func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
-	var id string
-	id = param.ByName("id")
-	switch r.Method {
-	case "GET":
-		// retrive specific category info
-		if len(id) > 0 {
-			categoryJSON := model.Categories{}
-			err := Db.Query("Select *from Categories;", categoryJSON)
-			if err != nil {
-				Logger.Add(err.Error())
-			}
+	var (
+		resourceQuery string
+		id            uint64
+	)
+	// get id parsed and err if any
+	id, err := resourceID(param.ByName("id"))
 
-		} else { // retrive all categories
+	// test the parsing scope
+	switch err {
+	case errNotSet:
+		resourceQuery = "SELECT *FROM Category"
+		// http method
+		switch r.Method {
+		case "GET":
+			rows, err := Database.Query(resourceQuery)
+			logIT(err)
+			data, err := model.CategoriesJSON(rows)
+			logIT(err)
+			// prepare header content-type
+			w.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+			// prepare  status code
+			w.WriteHeader(http.StatusOK)
+
+			// make newbody json response
+			if _, err := w.Write(data); err != nil {
+				//log server error
+				Logger.Add("[GET] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
+			}
+		default:
+			internalAPIError(w)
 		}
-	case "POST":
-	case "PUT":
-	case "DELETE":
+
+	case nil:
+		resourceQuery = "SELECT *FROM Category WHERE ID_Category = ?"
+		switch r.Method {
+		case "GET":
+			data, err := model.OneCategoryJSON(Database, resourceQuery, id)
+			logIT(err)
+
+			// prepare header content-type
+			w.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+			// prepare  status code
+			w.WriteHeader(http.StatusOK)
+
+			// make newbody json response
+			if _, err := w.Write(data); err != nil {
+				//log server error
+				Logger.Add("[GET] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
+			}
+		default:
+			internalAPIError(w)
+		}
+
+	case errHighBitSet:
+		//return response api to large number 64 int
+		toLargeAPINumberError(w)
+
 	default:
-		// any other http verbs
-		notImplementedAPIError(w)
+		// internal service error api
+		// parseINT error
+		internalAPIError(w)
 	}
 }
 
-// handler for Users resources
+//
+// usersHandler for users resources
+//
 func usersHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
 	switch r.Method {
 	case "GET":

@@ -15,11 +15,11 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/hoenirvili/RestingGopher/model"
-	"github.com/julienschmidt/httprouter"
 )
 
 // unexported const var
@@ -33,52 +33,30 @@ const (
 	username = "golang:"
 )
 
-type customMethodNotAllowed struct {
-}
-type customNotFound struct {
-}
-
-// customMethodNotAllowed implements http.Handler
-func (c customMethodNotAllowed) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	notImplementedAPIError(w)
-}
-
-// customNotFound implements http.Handler
-func (c customNotFound) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	notFoundAPIError(w)
-}
-
-func getRoutes() *httprouter.Router {
-	// make a new httprouter
-	router := httprouter.New()
-	// declare all routes
-	router.GET("/", rootHandler)
-	// articles
-	router.GET("/articles/", articlesHandler)
-	router.GET("/articles/:id", articlesHandler)
-	//categories
-	router.GET("/categories/", categoriesHandler)
-	router.GET("/categories/:id", categoriesHandler)
-
-	router.NotFound = customNotFound{}
-	router.MethodNotAllowed = customMethodNotAllowed{}
-
-	// just make static public directory
-	router.ServeFiles("/static/*filepath", http.Dir("static"))
-
-	return router
-}
+var (
+	// Database export glbal connection
+	Database model.DB
+	// unexported  err var
+	err error
+	//Logger global way to log things
+	Logger logger
+)
 
 // Start func start server process and init all
 // config server options
 func Start() {
-	// make just a new logger
+	fmt.Println("[ Logger ]\tInit logger, target: server.log")
+	// make new logger global instance
 	Logger = newLogger()
 
-	Db, err := model.NewOpen("mysql", username+password+dbName)
+	fmt.Println("[ DataBS ]\tStarting mysql with " + username + " pass " + password + " database " + dbName)
+	// make new database global instance
+	Database, err = model.NewOpen("mysql", username+password+dbName)
 	if err != nil {
-		Logger.Add(err.Error())
+		Logger.Add("Can't open a new Database Handler")
 	}
+
+	fmt.Println("[ Server ]\tStarting on port " + port)
 	// start the server
 	err = http.ListenAndServe(domain+port, getRoutes())
 	if err != nil {

@@ -14,6 +14,18 @@
 
 package model
 
+//Payload json fromat
+type Payload struct {
+	Data interface{}
+}
+
+//NewPayload return new JSON response payload
+func NewPayload(d interface{}) Payload {
+	return Payload{
+		Data: d,
+	}
+}
+
 // Categories struct serializable json response
 type Categories struct {
 	ID   int

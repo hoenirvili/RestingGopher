@@ -16,7 +16,13 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+)
+
+var (
+	errHighBitSet = errors.New("High bit set")
+	errNotSet     = errors.New("Params not set")
 )
 
 // DefaultInternalError JSON string response
@@ -66,7 +72,7 @@ func internalAPIError(w http.ResponseWriter) {
 	// prepare   status code
 	w.WriteHeader(http.StatusInternalServerError) // 500
 	// Make new body json response
-	body := NewErrServer("Internal Server Error test").JSON()
+	body := NewErrServer("The server has encountered an error try again later.").JSON()
 	if _, err := w.Write(body); err != nil {
 		Logger.Add("Internal API Error Write to response body failed")
 	}
@@ -77,7 +83,7 @@ func notFoundAPIError(w http.ResponseWriter) {
 	// prepare header content-type
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	// prepare  status code
-	w.WriteHeader(http.StatusNotFound)
+	w.WriteHeader(http.StatusNotFound) //404
 	// Make newbody json response
 	body := NewErrServer("Content not found").JSON()
 	if _, err := w.Write(body); err != nil {
@@ -89,10 +95,22 @@ func notImplementedAPIError(w http.ResponseWriter) {
 	// prepare header content-type
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	// prepare  status code
-	w.WriteHeader(http.StatusNotImplemented)
+	w.WriteHeader(http.StatusNotImplemented) //503
 	// make newbody json response
 	body := NewErrServer("This resource or content is not implemented yet").JSON()
 	if _, err := w.Write(body); err != nil {
 		Logger.Add("Resource or content not implemented yet Write to response body failed")
+	}
+}
+
+func toLargeAPINumberError(w http.ResponseWriter) {
+	// prepare header content-type
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	// prepare  status code
+	w.WriteHeader(http.StatusNotAcceptable) //406
+	// make newbody json response
+	body := NewErrServer("The number of the resource passed is to large.API can't hadle numbers larger than 9223372036854775807").JSON()
+	if _, err := w.Write(body); err != nil {
+		Logger.Add("Number of the resource passed is to large Write to response body failed")
 	}
 }

@@ -21,7 +21,7 @@ type ErrSQL struct {
 	Message string
 }
 
-//Errorimplement error interface
+//Error implement error interface
 func (e ErrSQL) Error() string {
 	return fmt.Sprintf("[SQL ERROR] %s\n", e.Message)
 }

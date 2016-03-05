@@ -1,0 +1,61 @@
+// Copyright [2016] [hoenir]
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package server
+
+import (
+	"net/http"
+
+	"github.com/julienschmidt/httprouter"
+)
+
+type customMethodNotAllowed struct {
+}
+type customNotFound struct {
+}
+
+// customMethodNotAllowed implements http.Handler
+func (c customMethodNotAllowed) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	notImplementedAPIError(w)
+}
+
+// customNotFound implements http.Handler
+func (c customNotFound) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	notFoundAPIError(w)
+}
+
+// getRoutes func returns a new custom httprouter
+func getRoutes() *httprouter.Router {
+	// make a new httprouter
+	router := httprouter.New()
+
+	// declare all routes
+	router.GET("/", rootHandler)
+	// articles
+	router.GET("/articles/", articlesHandler)
+	router.GET("/articles/:id", articlesHandler)
+	//categories
+	router.GET("/categories/", categoriesHandler)
+	router.GET("/categories/:id", categoriesHandler)
+	// router.GET("/categories/:id", categoriesHandler)
+
+	// init custom notfound/notallowed methods
+	router.NotFound = customNotFound{}
+	router.MethodNotAllowed = customMethodNotAllowed{}
+
+	// just make static public directory
+	router.ServeFiles("/static/*filepath", http.Dir("static"))
+
+	return router
+}
