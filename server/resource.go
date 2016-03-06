@@ -30,7 +30,7 @@ func cateogoryGET(w http.ResponseWriter) {
 	logIT(err)
 
 	// prepare  status code
-	w.WriteHeader(http.StatusOK)
+	// w.WriteHeader(http.StatusOK)
 
 	// make newbody json response
 	if _, err := w.Write(data); err != nil {
@@ -49,7 +49,7 @@ func categoryIDGET(w http.ResponseWriter, r *http.Request, id uint64) {
 		logIT(err)
 	}
 	// prepare  status code
-	w.WriteHeader(http.StatusOK)
+	// w.WriteHeader(http.StatusOK)
 
 	// make newbody json response
 	if _, err := w.Write(data); err != nil {
@@ -219,4 +219,34 @@ func categoryDELETE(w http.ResponseWriter, r *http.Request) {
 	}
 
 end:
+}
+
+func categoryIDDELETE(w http.ResponseWriter, id uint64) {
+	resourceQuery := "DELETE FROM Category WHERE ID_Category = ?"
+	if toHighSet(id) {
+		toLargeAPINumberError(w)
+	} else {
+		stmt, err := Database.Prepare(resourceQuery)
+		logIT(err)
+		err = Database.ExecStmt(stmt, id)
+		logIT(err)
+	}
+
+	responseJSON := struct {
+		Data struct {
+			ID      uint64 `json: "ID_Resource"`
+			Message string `json: "Message"`
+		}
+	}{}
+	responseJSON.Data.ID = id
+	responseJSON.Data.Message = "Successful delete resource"
+	data, err := json.MarshalIndent(responseJSON, "", " ")
+	logIT(err)
+
+	w.WriteHeader(http.StatusOK)
+
+	if _, err := w.Write(data); err != nil {
+		//log server error
+		Logger.Add("[DELETE] request on Categories \n Failed to write to response body\n [Query] " + resourceQuery)
+	}
 }

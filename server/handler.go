@@ -72,6 +72,8 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 			cateogoryPUT(w, r)
 		case "DELETE":
 			categoryDELETE(w, r)
+		case "POST":
+			//TODO
 		default:
 			internalAPIError(w)
 		}
@@ -84,7 +86,9 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 		case "PUT":
 			categoryIDPUT(w, r, id)
 		case "DELETE":
-			// categoryIDDELETE(w, r, id)
+			categoryIDDELETE(w, id)
+		case "POST":
+			//TODO
 		default:
 			internalAPIError(w)
 		}
