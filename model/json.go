@@ -28,38 +28,38 @@ func NewPayload(d interface{}) Payload {
 
 // Categories struct serializable json response
 type Categories struct {
-	ID   int
-	Name string
+	ID   int    `json : "ID"`
+	Name string `json : "Name"`
 }
 
 // Image struct serializable json response
 type Image struct {
-	ID   int
-	Link string
+	ID   int    `json : "ID"`
+	Link string `json : "Link"`
 }
 
 // Comment struct serializable json response
 type Comment struct {
-	ID      int
-	Time    string
-	Content string
+	ID      int    `json : "ID"`
+	Time    string `json : "Time"`
+	Content string `json : "Content"`
 }
 
 // User struct serializable json response
 type User struct {
-	ID    int
-	Name  string
-	Email string
+	ID    int    `json: "ID"`
+	Name  string `json: "Name"`
+	Email string `json: "Email:"`
 }
 
 // Articles struct serializable json response
 type Articles struct {
-	ID       int
-	Title    string
-	Time     []byte
-	Author   string
-	Content  string
-	Category Categories
-	Image    []Image
-	Comments []Comment
+	ID       int        `json: "ID"`
+	Title    string     `json: "Title"`
+	Time     []byte     `json: "Time"`
+	Author   string     `json: "Author"`
+	Content  string     `json: "Content"`
+	Category Categories `json: "Category"`
+	Image    []Image    `json: "Image"`
+	Comments []Comment  `json "Comments"`
 }

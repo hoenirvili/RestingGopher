@@ -51,17 +51,13 @@ func CategoriesJSON(rows *sql.Rows) ([]byte, error) {
 }
 
 // OneCategoryJSON return one row from Category table JSON format
-func OneCategoryJSON(databse DB, queryStmt string, arg interface{}) ([]byte, error) {
+func OneCategoryJSON(databse DB, queryStmt string, args ...interface{}) ([]byte, error) {
 	holder := Categories{}
 	h := databse.Handler()
-	err := h.QueryRow(queryStmt, arg).Scan(&holder.ID, &holder.Name)
+	err := h.QueryRow(queryStmt, args...).Scan(&holder.ID, &holder.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			data, err := json.MarshalIndent(NewPayload("The request on this resource is not found"), "", " ")
-			if err != nil {
-				return nil, err
-			}
-			return data, ErrNoContent
+			return nil, ErrNoContent
 		}
 		return nil, &ErrSQL{Message: fmt.Sprintf("Error read row from single query %s", queryStmt)}
 	}

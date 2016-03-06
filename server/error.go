@@ -93,7 +93,7 @@ func notFoundAPIError(w http.ResponseWriter) {
 	// prepare  status code
 	w.WriteHeader(http.StatusNotFound) //404
 	// Make newbody json response
-	body := NewErrServer("Content not found").JSON()
+	body := NewErrServer("Content not found, the requested resource for reading,writing,modifing can't be accessed").JSON()
 	if _, err := w.Write(body); err != nil {
 		Logger.Add("Content not found Write to response body failed")
 	}

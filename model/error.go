@@ -21,7 +21,7 @@ import (
 
 // ErrSQL struct for internal purpose error handleing
 type ErrSQL struct {
-	Message string
+	Message string `json: "Message"`
 }
 
 var (
