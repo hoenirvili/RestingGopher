@@ -15,12 +15,9 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/hoenirvili/RestingGopher/model"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -28,9 +25,13 @@ import (
 // rootHandler for root resource
 //
 func rootHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	// w.Header().Add("Content-Type", "plain/text; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Welcome to my REST API build on GO !")
+
+	defer func() {
+		err := r.Body.Close()
+		logIT(err)
+	}()
 }
 
 //
@@ -38,6 +39,11 @@ func rootHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 //
 func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
 	fmt.Fprintf(w, "artcile resource %s", param.ByName("id"))
+
+	defer func() {
+		err := r.Body.Close()
+		logIT(err)
+	}()
 }
 
 //
@@ -45,8 +51,7 @@ func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Pa
 //
 func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
 	var (
-		resourceQuery string
-		id            uint64
+		id uint64
 	)
 
 	// prepare header content-type
@@ -57,145 +62,45 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 
 	// test the parsing scope
 	switch err {
+	// localhost:8080/categories/
 	case errParamNotSet:
 		// http method
 		switch r.Method {
 		case "GET":
-			resourceQuery = "SELECT *FROM Category"
-			rows, err := Database.Query(resourceQuery)
-			logIT(err)
-			data, err := model.CategoriesJSON(rows)
-			logIT(err)
-
-			// prepare  status code
-			w.WriteHeader(http.StatusOK)
-
-			// make newbody json response
-			if _, err := w.Write(data); err != nil {
-				//log server error
-				Logger.Add("[GET] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
-			}
+			cateogoryGET(w)
 		case "PUT":
-			resourceQuery = "INSERT INTO Category VALUES(NULL, ?)"
-			if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
-				// new payload
-				payload := CategoryPayload{}
-				// decode into paylaod
-				if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-					Logger.Add("Can't decode json post category request")
-				}
-				// process the payload
-				if payload.Data.ID != 0 && toHighSet(payload.Data.ID) {
-					toLargeAPINumberError(w)
-				} else { // make change post here
-					// prepare query
-					stmt, err := Database.Prepare(resourceQuery)
-					logIT(err) // log it if err
-					// exec stmt after prepare
-					err = Database.ExecStmt(stmt, payload.Data.Name)
-					logIT(err) // log it if err
-					// select the new row created
-					rows, err := Database.Query("Select *FROM Category WHERE Name = ? ", payload.Data.Name)
-					logIT(err) // log it if err
-					// if one/many rows are the same return it
-					data, err := model.CategoriesJSON(rows)
-					logIT(err) // log it if err
-					// prepare status codes
-					w.WriteHeader(http.StatusCreated)
-					// write json response
-					if _, err := w.Write(data); err != nil {
-						//log server error
-						Logger.Add("[PUT] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
-					}
-				}
-				defer func() {
-					err := r.Body.Close()
-					logIT(err)
-				}()
-			} else { // bad content type request
-				appropriateHeaderError(w)
-			}
-			// case ""
+			cateogoryPUT(w, r)
+		case "DELETE":
+			categoryDELETE(w, r)
 		default:
 			internalAPIError(w)
 		}
 	// we have valid ID
+	// localhost:8080/categories/{id}/
 	case nil:
 		switch r.Method {
 		case "GET":
-			resourceQuery = "SELECT *FROM Category WHERE ID_Category = ?"
-			data, err := model.OneCategoryJSON(Database, resourceQuery, id)
-			//think that we have a good response back from sql
-			status := http.StatusOK
-			// if the response if empty
-			if err == model.ErrNoContent {
-				// prepare  status code
-				status = http.StatusNotFound
-			} else { // other error
-				logIT(err)
-			}
-			// prepare  status code
-			w.WriteHeader(status)
-
-			// make newbody json response
-			if _, err := w.Write(data); err != nil {
-				//log server error
-				Logger.Add("[GET] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
-			}
-
+			categoryIDGET(w, r, id)
 		case "PUT":
-			resourceQuery = "UPDATE Category SET  Name = ? WHERE ID_Category = ?"
-			if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
-				// new payload
-				payload := CategoryPayload{}
-				// decode into paylaod
-				if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-					Logger.Add("Can't decode json post category request")
-				}
-				// process the payload
-				if payload.Data.ID != 0 && toHighSet(payload.Data.ID) {
-					toLargeAPINumberError(w)
-				} else { // make change post here
-					// prepare query
-					stmt, err := Database.Prepare(resourceQuery)
-					logIT(err) // log it if err
-					// exec stmt after prepare
-					err = Database.ExecStmt(stmt, payload.Data.Name, id)
-					logIT(err) // log it if err
-					// select the new row created
-					rows, err := Database.Query("Select *FROM Category WHERE Name = ? ", payload.Data.Name)
-					logIT(err) // log it if err
-					// if one/many rows are the same return it
-					data, err := model.CategoriesJSON(rows)
-					logIT(err) // log it if err
-					// prepare status codes
-					w.WriteHeader(http.StatusCreated)
-					// write json response
-					if _, err := w.Write(data); err != nil {
-						//log server error
-						Logger.Add("[PUT] request on Categories\n Failed to write to response body\n [Query] " + resourceQuery)
-					}
-				}
-				defer func() {
-					err := r.Body.Close()
-					logIT(err)
-				}()
-			} else { // bad content type request
-				appropriateHeaderError(w)
-			}
+			categoryIDPUT(w, r, id)
+		case "DELETE":
+			// categoryIDDELETE(w, r, id)
 		default:
 			internalAPIError(w)
 		}
-
 	case errHighBitSet:
 		//return response api to large number 64 int
 		toLargeAPINumberError(w)
-
 	default:
 		// internal service error api
 		// parseINT error
 		internalAPIError(w)
 	}
+
+	defer func() {
+		err := r.Body.Close()
+		logIT(err)
+	}()
 }
 
 //
@@ -210,4 +115,9 @@ func usersHandler(w http.ResponseWriter, r *http.Request, param httprouter.Param
 	default:
 		notImplementedAPIError(w)
 	}
+
+	defer func() {
+		err := r.Body.Close()
+		logIT(err)
+	}()
 }

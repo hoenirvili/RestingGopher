@@ -51,6 +51,9 @@ func getRoutes() *httprouter.Router {
 	router.PUT("/categories/", categoriesHandler)
 	router.PUT("/categories/:id", categoriesHandler)
 	// router.POST("/categories/:id", categoriesHandler)
+	router.DELETE("/categories/", categoriesHandler)
+	router.DELETE("/categories/:id", categoriesHandler)
+
 	// init custom notfound/notallowed methods
 	router.NotFound = customNotFound{}
 	router.MethodNotAllowed = customMethodNotAllowed{}

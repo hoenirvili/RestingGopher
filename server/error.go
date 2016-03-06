@@ -143,3 +143,18 @@ func appropriateHeaderError(w http.ResponseWriter) {
 		Logger.Add("Can't write to response , content-type api error")
 	}
 }
+
+func invalidJSONFormatError(w http.ResponseWriter) {
+	// if header is not set
+	if !(strings.Contains(w.Header().Get("Content-Type"), "application/json")) {
+		// prepare header content-type
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	}
+	// prepare  status code
+	w.WriteHeader(http.StatusBadRequest)
+	// make newbody json response
+	body := NewErrServer("Invalid JSON format error, please consult the documentation of this rest api").JSON()
+	if _, err := w.Write(body); err != nil {
+		Logger.Add("Can't write to response , content-type api error")
+	}
+}
