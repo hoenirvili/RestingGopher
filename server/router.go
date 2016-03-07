@@ -40,19 +40,20 @@ func getRoutes() *httprouter.Router {
 	// make a new httprouter
 	router := httprouter.New()
 
-	// declare all routes
+	// root router part
 	router.GET("/", rootHandler)
-	// articles
+	// articles router parts
 	router.GET("/articles/", articlesHandler)
 	router.GET("/articles/:id", articlesHandler)
-	//categories
+	// categories router parts
 	router.GET("/categories/", categoriesHandler)
 	router.GET("/categories/:id", categoriesHandler)
 	router.PUT("/categories/", categoriesHandler)
 	router.PUT("/categories/:id", categoriesHandler)
-	// router.POST("/categories/:id", categoriesHandler)
 	router.DELETE("/categories/", categoriesHandler)
 	router.DELETE("/categories/:id", categoriesHandler)
+	router.POST("/categories/", categoriesHandler)
+	router.POST("/categories/:id", categoriesHandler)
 
 	// init custom notfound/notallowed methods
 	router.NotFound = customNotFound{}

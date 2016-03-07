@@ -38,7 +38,49 @@ func rootHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 // handler for articles resource
 //
 func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
-	fmt.Fprintf(w, "artcile resource %s", param.ByName("id"))
+	var (
+		id uint64
+	)
+
+	// prepare header content-type
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+	// get id parsed and err if any
+	id, err := resourceID(param.ByName("id"))
+
+	// test the parsing scope
+	switch err {
+	// localhost:8080/articles/
+	case errParamNotSet:
+		// http method
+		switch r.Method {
+		case "GET":
+			articlesGET(w)
+		case "PUT":
+		case "DELETE":
+		case "POST":
+		default:
+			internalAPIError(w)
+		}
+	// we have valid ID
+	// localhost:8080/articles/{id}/
+	case nil:
+		switch r.Method {
+		case "GET":
+			articlesIDGET(w, id)
+		case "PUT":
+		case "DELETE":
+		default:
+			internalAPIError(w)
+		}
+	case errHighBitSet:
+		//return response api to large number 64 int
+		toLargeAPINumberError(w)
+	default:
+		// internal service error api
+		// parseINT error
+		internalAPIError(w)
+	}
 
 	defer func() {
 		err := r.Body.Close()
@@ -73,7 +115,7 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 		case "DELETE":
 			categoryDELETE(w, r)
 		case "POST":
-			//TODO
+			categoryPOST(w, r)
 		default:
 			internalAPIError(w)
 		}
@@ -87,8 +129,6 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 			categoryIDPUT(w, r, id)
 		case "DELETE":
 			categoryIDDELETE(w, id)
-		case "POST":
-			//TODO
 		default:
 			internalAPIError(w)
 		}

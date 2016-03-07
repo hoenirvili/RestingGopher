@@ -23,7 +23,7 @@ import (
 )
 
 func cateogoryGET(w http.ResponseWriter) {
-	resourceQuery := "SELECT *FROM Category"
+	const resourceQuery = "SELECT *FROM Category"
 	rows, err := Database.Query(resourceQuery)
 	logIT(err)
 	data, err := model.CategoriesJSON(rows)
@@ -40,7 +40,7 @@ func cateogoryGET(w http.ResponseWriter) {
 }
 
 func categoryIDGET(w http.ResponseWriter, r *http.Request, id uint64) {
-	resourceQuery := "SELECT *FROM Category WHERE ID_Category = ?"
+	const resourceQuery = "SELECT *FROM Category WHERE ID_Category = ?"
 	data, err := model.OneCategoryJSON(Database, resourceQuery, id)
 	// if the response if empty
 	if err == model.ErrNoContent {
@@ -59,7 +59,7 @@ func categoryIDGET(w http.ResponseWriter, r *http.Request, id uint64) {
 
 }
 func cateogoryPUT(w http.ResponseWriter, r *http.Request) {
-	resourceQuery := "INSERT INTO Category VALUES(NULL, ?)"
+	const resourceQuery = "INSERT INTO Category VALUES(NULL, ?)"
 	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
 		// new payload
 		payload := CategoryPayload{}
@@ -101,7 +101,7 @@ func cateogoryPUT(w http.ResponseWriter, r *http.Request) {
 end:
 }
 func categoryIDPUT(w http.ResponseWriter, r *http.Request, id uint64) {
-	resourceQuery := "UPDATE Category SET Name = ? WHERE ID_Category = ?"
+	const resourceQuery = "UPDATE Category SET Name = ? WHERE ID_Category = ?"
 	// if the content we want to PUT is in JSON format that means we can
 	// first process it
 	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
@@ -163,7 +163,7 @@ end:
 }
 
 func categoryDELETE(w http.ResponseWriter, r *http.Request) {
-	resourceQuery := "DELETE FROM Category WHERE ID_Category = ? && Name = ? "
+	const resourceQuery = "DELETE FROM Category WHERE ID_Category = ? && Name = ? "
 	// if request header has json
 	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
 		// new payload
@@ -222,7 +222,7 @@ end:
 }
 
 func categoryIDDELETE(w http.ResponseWriter, id uint64) {
-	resourceQuery := "DELETE FROM Category WHERE ID_Category = ?"
+	const resourceQuery = "DELETE FROM Category WHERE ID_Category = ?"
 	if toHighSet(id) {
 		toLargeAPINumberError(w)
 	} else {
@@ -249,4 +249,68 @@ func categoryIDDELETE(w http.ResponseWriter, id uint64) {
 		//log server error
 		Logger.Add("[DELETE] request on Categories \n Failed to write to response body\n [Query] " + resourceQuery)
 	}
+}
+func categoryPOST(w http.ResponseWriter, r *http.Request) {
+	const (
+		resourceQuery = "INSERT INTO Category VALUES( ?, ? )"
+		updateQuery   = "UPDATE Category SET Name = ? WHERE ID_Category = ? || Name = ?"
+	)
+	var message string
+	// we have JSON POST request
+	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+		// new payload
+		payload := CategoryPayload{}
+		// decode into payload struct
+		err := json.NewDecoder(r.Body).Decode(&payload)
+		// if the payload is not ok deoced
+		if err != nil && payload.Data.ID == 0 || payload.Data.Name == "" {
+			invalidJSONFormatError(w)
+			Logger.Add("Can't decode json respons POST category request")
+			goto end
+		}
+		// process ID payload if it's ok
+		if toHighSet(payload.Data.ID) {
+			toLargeAPINumberError(w)
+		} else { // process the request
+			_, err := model.OneCategoryJSON(Database, "SELECT *from Category WHERE ID_Category= ? || Name = ?", payload.Data.ID, payload.Data.Name)
+			// if we found the content already
+			// that means we have a row returned
+			// we must update it not insert duplicate
+			if err != model.ErrNoContent {
+				// UPDATE STMT
+				err := Database.Exec(updateQuery, payload.Data.Name, payload.Data.ID, payload.Data.Name)
+				logIT(err)
+				message = "Successful modify resource "
+			} else { // else we don't have the data and we must inserted
+				stmt, err := Database.Prepare(resourceQuery)
+				logIT(err)
+				err = Database.ExecStmt(stmt, payload.Data.ID, payload.Data.Name)
+				logIT(err)
+				message = "Successful inserted resource "
+			}
+			w.WriteHeader(http.StatusCreated)
+			responseJSON := struct {
+				Data struct {
+					ID      uint64 `json: "ID_Resource"`
+					Name    string `json: "Name"`
+					Message string `json: "Message"`
+				}
+			}{}
+			responseJSON.Data.ID = payload.Data.ID
+			responseJSON.Data.Name = payload.Data.Name
+			responseJSON.Data.Message = message
+			if err := json.NewEncoder(w).Encode(responseJSON); err != nil {
+				Logger.Add("[POST] request on Cateogires \n Failed to write response body\n [Query] " + resourceQuery)
+			}
+		}
+	}
+end:
+}
+
+func articlesGET(w http.ResponseWriter) {
+
+}
+
+func articlesIDGET(w http.ResponseWriter, id uint64) {
+
 }
