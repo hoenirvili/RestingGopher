@@ -157,13 +157,16 @@ INSERT INTO Comment VALUES(20, "2016-03-03","Did shy say");
 INSERT INTO Comment VALUES(21, "2016-03-03","Vai nu se poate, ce comentariu");
 INSERT INTO Comment VALUES(22, "2016-03-03","VDid shy say");
 INSERT INTO Comment VALUES(23, "2016-03-03","Vai nu se poate, ce comentariu");
-INSERT INTO Comment VALUES(24, "2016-03-03","Vai nu se poate, ce comentariu");
-INSERT INTO Comment VALUES(25, "2016-03-03","Vai nu se poate, ce comentariu");
-INSERT INTO Comment VALUES(26, "2016-03-03","Vai nu se poate, ce comentariu");
-INSERT INTO Comment VALUES(27, "2016-03-03","Vai nu se poate, ce comentariu");
-INSERT INTO Comment VALUES(28, "2016-03-03","Vai nu se poate, ce comentariu");
-INSERT INTO Comment VALUES(29, "2016-03-03","Vai nu se poate, ce comentariu");
-INSERT INTO Comment VALUES(30, "2016-03-03","Vai nu se poate, ce comentariu");
+INSERT INTO Comment VALUES(24, "2016-03-03","Doing this is wrong men");
+INSERT INTO Comment VALUES(25, "2016-03-03","Nu pot sa cred ce viata trista ai sa faci asta");
+INSERT INTO Comment VALUES(26, "2016-03-03","Sanatatea ar trebui sa fie finantata mai des");
+INSERT INTO Comment VALUES(27, "2016-03-03","Statusl is bate jos de cetatean");
+INSERT INTO Comment VALUES(28, "2016-03-03","Nu inteleg de ce lumea moare de foame in Romania");
+INSERT INTO Comment VALUES(29, "2016-03-03","Vai ce trista e lumea in ziua de azi");
+INSERT INTO Comment VALUES(30, "2016-03-03","Cand am zis ca guvernul lui Ponta va cadea, va cadea");
+INSERT INTO Comment VALUES(31, "2016-03-03","Hai ca se poate , bine asa guvernul !");
+INSERT INTO Comment VALUES(32, "2016-03-03","Cat rau a mai facut basescu asta ");
+INSERT INTO Comment VALUES(33, "2016-03-03","Realitatea TV cel mai jmen televiziune de stiri din Romania");
 
 INSERT INTO ArticleImage VALUES(1,1);
 INSERT INTO ArticleImage VALUES(2,2);
@@ -195,43 +198,99 @@ INSERT INTO ArticleImage VALUES(27,17);
 INSERT INTO ArticleImage VALUES(28,17);
 INSERT INTO ArticleImage VALUES(29,17);
 
-INSERT INTO ArticleComment VALUES(1,10);
-INSERT INTO ArticleComment VALUES(1,3);
-INSERT INTO ArticleComment VALUES(1,7);
-INSERT INTO ArticleComment VALUES(1,17);
-INSERT INTO ArticleComment VALUES(1,15);
-INSERT INTO ArticleComment VALUES(2,17);
-INSERT INTO ArticleComment VALUES(2,20);
-INSERT INTO ArticleComment VALUES(2,16);
-INSERT INTO ArticleComment VALUES(2,10);
+INSERT INTO ArticleComment VALUES(1,1);
+INSERT INTO ArticleComment VALUES(2,2);
 INSERT INTO ArticleComment VALUES(3,3);
-INSERT INTO ArticleComment VALUES(3,7);
-INSERT INTO ArticleComment VALUES(3,3);
-INSERT INTO ArticleComment VALUES(3,4);
-INSERT INTO ArticleComment VALUES(3,5);
-INSERT INTO ArticleComment VALUES(4,10);
-INSERT INTO ArticleComment VALUES(4,11);
-INSERT INTO ArticleComment VALUES(4,12);
-INSERT INTO ArticleComment VALUES(4,13);
-INSERT INTO ArticleComment VALUES(4,14);
-INSERT INTO ArticleComment VALUES(5,2);
-INSERT INTO ArticleComment VALUES(5,3);
-INSERT INTO ArticleComment VALUES(5,4);
+INSERT INTO ArticleComment VALUES(4,4);
 INSERT INTO ArticleComment VALUES(5,5);
-INSERT INTO ArticleComment VALUES(5,6);
+INSERT INTO ArticleComment VALUES(6,6);
+INSERT INTO ArticleComment VALUES(7,7);
+INSERT INTO ArticleComment VALUES(8,8);
+INSERT INTO ArticleComment VALUES(9,9);
+INSERT INTO ArticleComment VALUES(10,10);
+INSERT INTO ArticleComment VALUES(11,11);
+INSERT INTO ArticleComment VALUES(12,12);
+INSERT INTO ArticleComment VALUES(13,13);
+INSERT INTO ArticleComment VALUES(14,14);
+INSERT INTO ArticleComment VALUES(15,15);
+INSERT INTO ArticleComment VALUES(16,16);
+INSERT INTO ArticleComment VALUES(17,17);
+INSERT INTO ArticleComment VALUES(18,18);
+INSERT INTO ArticleComment VALUES(19,19);
+INSERT INTO ArticleComment VALUES(20,20);
+INSERT INTO ArticleComment VALUES(21,21);
+INSERT INTO ArticleComment VALUES(22,22);
+INSERT INTO ArticleComment VALUES(23,23);
+INSERT INTO ArticleComment VALUES(24,24);
+INSERT INTO ArticleComment VALUES(25,25);
+INSERT INTO ArticleComment VALUES(26,26);
+INSERT INTO ArticleComment VALUES(27,27);
+INSERT INTO ArticleComment VALUES(28,28);
+INSERT INTO ArticleComment VALUES(29,29);
+INSERT INTO ArticleComment VALUES(30,30);
+INSERT INTO ArticleComment VALUES(31,31);
+INSERT INTO ArticleComment VALUES(32,32);
+INSERT INTO ArticleComment VALUES(33,33);
 
-INSERT INTO UserComment VALUES(1,5);
-INSERT INTO UserComment VALUES(2,6);
-INSERT INTO UserComment VALUES(3,7);
-INSERT INTO UserComment VALUES(4,8);
-INSERT INTO UserComment VALUES(5,9);
-INSERT INTO UserComment VALUES(6,3);
-INSERT INTO UserComment VALUES(7,2);
-INSERT INTO UserComment VALUES(8,2);
-INSERT INTO UserComment VALUES(9,1);
-INSERT INTO UserComment VALUES(9,2);
+
+
+
+
+
+
+
+INSERT INTO UserComment VALUES(1,1);
+INSERT INTO UserComment VALUES(2,1);
+INSERT INTO UserComment VALUES(3,1);
+INSERT INTO UserComment VALUES(4,2);
+INSERT INTO UserComment VALUES(5,2);
+INSERT INTO UserComment VALUES(6,2);
+INSERT INTO UserComment VALUES(7,3);
+INSERT INTO UserComment VALUES(8,3);
 INSERT INTO UserComment VALUES(9,3);
-INSERT INTO UserComment VALUES(9,5);
+INSERT INTO UserComment VALUES(10,4);
+INSERT INTO UserComment VALUES(11,4);
+INSERT INTO UserComment VALUES(12,4);
+INSERT INTO UserComment VALUES(13,4);
+INSERT INTO UserComment VALUES(14,5);
+INSERT INTO UserComment VALUES(15,6);
+INSERT INTO UserComment VALUES(16,7);
+INSERT INTO UserComment VALUES(17,8);
+INSERT INTO UserComment VALUES(18,9);
+INSERT INTO UserComment VALUES(19,5);
+INSERT INTO UserComment VALUES(20,6);
+INSERT INTO UserComment VALUES(21,7);
+INSERT INTO UserComment VALUES(22,8);
+INSERT INTO UserComment VALUES(23,9);
+INSERT INTO UserComment VALUES(24,6);
+INSERT INTO UserComment VALUES(25,5);
+INSERT INTO UserComment VALUES(26,6);
+INSERT INTO UserComment VALUES(27,8);
+INSERT INTO UserComment VALUES(28,7);
+INSERT INTO UserComment VALUES(29,1);
+INSERT INTO UserComment VALUES(30,2);
+INSERT INTO UserComment VALUES(31,3);
+INSERT INTO UserComment VALUES(32,3);
+INSERT INTO UserComment VALUES(33,9);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 DESC Category;

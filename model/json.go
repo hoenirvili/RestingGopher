@@ -40,7 +40,8 @@ type Image struct {
 
 // Comment struct serializable json response
 type Comment struct {
-	ID      int    `json : "ID"`
+	ID      uint64 `json : "ID"`
+	User    User   `json: "User"`
 	Time    string `json : "Time"`
 	Content string `json : "Content"`
 }
@@ -54,12 +55,12 @@ type User struct {
 
 // Articles struct serializable json response
 type Articles struct {
-	ID       int        `json: "ID"`
-	Title    string     `json: "Title"`
-	Time     []uint8    `json: "Time"`
-	Author   string     `json: "Author"`
-	Content  string     `json: "Content"`
-	Category Categories `json: "Category"`
-	Image    []Image    `json: "Image"`
-	Comments []Comment  `json "Comments"`
+	ID       int       `json: "ID"`
+	Title    string    `json: "Title"`
+	Time     string    `json: "Time"`
+	Author   string    `json: "Author"`
+	Content  string    `json: "Content"`
+	Category string    `json: "Category"`
+	Image    []Image   `json: "Image"`
+	Comments []Comment `json "Comments"`
 }

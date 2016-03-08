@@ -308,43 +308,6 @@ func categoryPOST(w http.ResponseWriter, r *http.Request) {
 end:
 }
 
-/*
-
-SELECT art.ID_Article, art.Title, art.Time, art.Author, art.Content, cat.Name
-FROM Article AS art
-INNER JOIN Category AS cat
-ON art.ID_Category = cat.ID_Category
-ORDER BY art.ID_Article ASC;
-
-
-SELECT art.ID_Article, art.Title, art.Time, art.Author, art.Content, cat.Name
-FROM Article art, Image img
-INNER JOIN Category cat
-	ON art.ID_Category = cat.ID_Category
-INNER JOIN ArticleImage AS aimg
-	ON aimg.ID_Image = img.ID_Image
-LIMIT 1;
-AND aimg.ID_Article = art.ID_Article
-
-
-SELECT *
-FROM Article
-INNER JOIN Image
-	ON ArticleImage.ID_Article = Article.ID_Article
-LIMIT 1;
-
-
-SELECT art.ID_Article, art.Title, art.Time, art.Author, img.Link, cat.Name
-FROM Image AS img
-INNER JOIN ArticleImage AS aimg
-	ON aimg.ID_Image = img.ID_Image
-INNER JOIN Article as art
-	ON aimg.ID_Article = art.ID_Article
-INNER JOIN Category cat
-	ON cat.ID_Category = art.ID_Category
-LIMIT 1;
-*/
-
 func articlesGET(w http.ResponseWriter) {
 	data, err := model.ArticleJSON(Database)
 	logIT(err)
@@ -357,5 +320,13 @@ func articlesGET(w http.ResponseWriter) {
 }
 
 func articlesIDGET(w http.ResponseWriter, id uint64) {
+	data, err := model.OneArticleJSON(Database, id)
+	logIT(err)
+	w.WriteHeader(http.StatusOK)
+
+	if _, err := w.Write(data); err != nil {
+		//log server error
+		Logger.Add("[GET] request on ID Articles\n Failed to write to response body\n")
+	}
 
 }

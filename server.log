@@ -1,18 +1,1 @@
 
-2016/03/08 16:23:23 [SERVER ] [SQL ERROR] Error row read from Cateogries table 
-
-2016/03/08 16:24:36 [SERVER ] [SQL ERROR] Error row read from Cateogries table 
-
-2016/03/08 16:27:52 [SERVER ] [SQL ERROR] Error row read from Article tables table 
-
-2016/03/08 16:30:36 listen tcp 127.0.0.1:8080: bind: address already in use
-2016/03/08 16:30:49 [SERVER ] [SQL ERROR] Error row read from Article tables table 
-
-2016/03/08 16:31:43 [SERVER ] [SQL ERROR] Error row read from Article tables table 
-
-2016/03/08 16:32:27 [SERVER ] [SQL ERROR] Error row read from Article tables table 
-
-2016/03/08 16:32:58 [SERVER ] [SQL ERROR] Error row read from Article tables table 
-
-2016/03/08 16:33:22 [SERVER ] [SQL ERROR] Error row read from Article tables table 
-

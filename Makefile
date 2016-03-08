@@ -1,7 +1,7 @@
 all :
 	go build
 	./RestingGopher
-reset:
+clean:
 	rm RestingGopher
 	echo "" > server.log
 	cat server.log
