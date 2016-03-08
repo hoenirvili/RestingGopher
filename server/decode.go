@@ -15,7 +15,6 @@
 package server
 
 // CategoryPayload struct type to decode incomming post request body json
-// this is used for POST/PUT on categories/ resource
 type CategoryPayload struct {
 	Data struct {
 		ID   uint64 `json: ID`

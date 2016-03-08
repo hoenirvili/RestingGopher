@@ -56,7 +56,7 @@ type User struct {
 type Articles struct {
 	ID       int        `json: "ID"`
 	Title    string     `json: "Title"`
-	Time     []byte     `json: "Time"`
+	Time     []uint8    `json: "Time"`
 	Author   string     `json: "Author"`
 	Content  string     `json: "Content"`
 	Category Categories `json: "Category"`

@@ -63,3 +63,33 @@ func OneCategoryJSON(databse DB, queryStmt string, args ...interface{}) ([]byte,
 	}
 	return json.MarshalIndent(NewPayload(holder), "", " ")
 }
+
+// ArticleJSON return article JSON format from joining multiple tables Article, Cateogries, Image, Comment, Users.
+func ArticleJSON(database DB) ([]byte, error) {
+	const (
+		firstQuery = "SELECT art.ID_Article, art.Title, art.Time, art.Author, art.Content, cat.Name FROM Article AS art INNER JOIN Category AS cat ON art.ID_Category = cat.ID_Category ORDER BY art.ID_Article ASC"
+	)
+	var (
+		article []Articles
+		holder  Articles
+	)
+
+	rows, err := database.Query(firstQuery)
+	if err != nil {
+		return nil, &ErrSQL{Message: fmt.Sprintf("Error on first query from Joining Category with articles table")}
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&holder.ID, &holder.Title, &holder.Time, &holder.Author, &holder.Content, &holder.Category)
+		if err != nil {
+			fmt.Println(err)
+			return nil, &ErrSQL{Message: fmt.Sprintf("Error row read from Article tables table ")}
+		}
+		article = append(article, holder)
+	}
+
+	if err = rows.Err(); err != nil {
+		panic(err)
+	}
+	return json.MarshalIndent(NewPayload(article), "", " ")
+}
