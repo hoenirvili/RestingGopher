@@ -14,10 +14,22 @@
 
 package server
 
-// CategoryPayload struct type to decode incomming post request body json
+// CategoryPayload struct type to decode incomming post/put request body json
 type CategoryPayload struct {
 	Data struct {
-		ID   uint64 `json: ID`
-		Name string `json: Name`
+		ID   uint64 `json: "ID"`
+		Name string `json: "Name"`
+	}
+}
+
+// ArticlePayload struct type to decode incomming post/put request body json
+type ArticlePayload struct {
+	Data struct {
+		ID         uint64 `json: "ID"`
+		Title      string `json: "Title"`
+		Time       string `json: "Time"`
+		Author     string `json: "Author"`
+		Content    string `json: "Content"`
+		IDCategory uint64 `json: "ID_Category"`
 	}
 }

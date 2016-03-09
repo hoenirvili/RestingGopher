@@ -45,6 +45,13 @@ func getRoutes() *httprouter.Router {
 	// articles router parts
 	router.GET("/articles/", articlesHandler)
 	router.GET("/articles/:id", articlesHandler)
+	router.PUT("/articles/", articlesHandler)
+	router.PUT("/articles/:id", articlesHandler)
+
+	//TODO
+	router.DELETE("/articles/", articlesHandler)
+	router.DELETE("/articles/:id", articlesHandler)
+
 	// categories router parts
 	router.GET("/categories/", categoriesHandler)
 	router.GET("/categories/:id", categoriesHandler)

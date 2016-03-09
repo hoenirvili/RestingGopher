@@ -176,7 +176,7 @@ func ArticleJSON(database DB) ([]byte, error) {
 		panic(err)
 	}
 
-	// suplimentar query
+	// select query for helping merging all other results together
 	rows, err = database.Query("SELECT ID_Article FROM ArticleComment ORDER BY ID_Comment")
 	if err != nil {
 		return nil, &ErrSQL{Message: fmt.Sprintf("Error on fourth query from joining Comment with User")}
@@ -211,7 +211,7 @@ func ArticleJSON(database DB) ([]byte, error) {
 		}
 	}
 
-	return json.MarshalIndent(NewPayload(article), "", " ")
+	return json.MarshalIndent(NewPayload(article), "   ", "   ")
 }
 
 // OneArticleJSON makes query and responds with one article in json format
@@ -275,6 +275,8 @@ func OneArticleJSON(database DB, id uint64) ([]byte, error) {
 		if err != nil {
 			return nil, &ErrSQL{Message: fmt.Sprintf("Error row read from Image,ImageArticle tables")}
 		}
+		// parse time comment
+		commentHolder.Time = string(timeHolder)
 		article.Comments = append(article.Comments, commentHolder)
 	}
 	if err = rows.Err(); err != nil {
@@ -335,5 +337,5 @@ func OneArticleJSON(database DB, id uint64) ([]byte, error) {
 			}
 		}
 	}
-	return json.MarshalIndent(NewPayload(article), "", " ")
+	return json.MarshalIndent(NewPayload(article), "   ", "   ")
 }

@@ -17,6 +17,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -57,6 +58,7 @@ func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Pa
 		case "GET":
 			articlesGET(w)
 		case "PUT":
+			articlePUT(w, r)
 		case "DELETE":
 		case "POST":
 		default:
@@ -69,6 +71,7 @@ func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Pa
 		case "GET":
 			articlesIDGET(w, id)
 		case "PUT":
+			articleIDPUT(w, r, id)
 		case "DELETE":
 		default:
 			internalAPIError(w)
@@ -77,9 +80,20 @@ func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Pa
 		//return response api to large number 64 int
 		toLargeAPINumberError(w)
 	default:
-		// internal service error api
-		// parseINT error
-		internalAPIError(w)
+		// type assertion on strconv.NumError struct
+		// if error is a type of this struct
+		// check if attribute Err is strconv.ErrRange error
+		numErr, ok := err.(*strconv.NumError)
+		if ok {
+			if numErr.Err == strconv.ErrRange {
+				toLargeAPINumberError(w)
+			}
+		} else { // some other error that don't belongs
+			// to strconv
+			// internal service error api
+			// parseINT error
+			internalAPIError(w)
+		}
 	}
 
 	defer func() {
@@ -135,29 +149,24 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request, param httprouter.
 	case errHighBitSet:
 		//return response api to large number 64 int
 		toLargeAPINumberError(w)
+	// case strconv.ErrRange:
+	// 	//return response api to large number 64 int
+	// 	toLargeAPINumberError(w)
 	default:
-		// internal service error api
-		// parseINT error
-		internalAPIError(w)
-	}
-
-	defer func() {
-		err := r.Body.Close()
-		logIT(err)
-	}()
-}
-
-//
-// usersHandler for users resources
-//
-func usersHandler(w http.ResponseWriter, r *http.Request, param httprouter.Params) {
-	switch r.Method {
-	case "GET":
-	case "POST":
-	case "PUT":
-	case "DELETE":
-	default:
-		notImplementedAPIError(w)
+		// type assertion on strconv.NumError struct
+		// if error is a type of this struct
+		// check if attribute Err is strconv.ErrRange error
+		numErr, ok := err.(*strconv.NumError)
+		if ok {
+			if numErr.Err == strconv.ErrRange {
+				toLargeAPINumberError(w)
+			}
+		} else { // some other error that don't belongs
+			// to strconv
+			// internal service error api
+			// parseINT error
+			internalAPIError(w)
+		}
 	}
 
 	defer func() {

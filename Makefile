@@ -7,3 +7,5 @@ clean:
 	cat server.log
 e:
 	cat server.log
+tail:
+	tail -f server.log
