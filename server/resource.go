@@ -30,7 +30,7 @@ func cateogoryGET(w http.ResponseWriter) {
 	logIT(err)
 
 	// prepare  status code
-	// w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)
 
 	// make newbody json response
 	if _, err := w.Write(data); err != nil {
@@ -45,11 +45,14 @@ func categoryIDGET(w http.ResponseWriter, r *http.Request, id uint64) {
 	// if the response if empty
 	if err == model.ErrNoContent {
 		notFoundAPIError(w)
-	} else { // other error
+		goto end
+	} else if err != nil { // other error
 		logIT(err)
+		goto end
 	}
+
 	// prepare  status code
-	// w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)
 
 	// make newbody json response
 	if _, err := w.Write(data); err != nil {
@@ -57,6 +60,7 @@ func categoryIDGET(w http.ResponseWriter, r *http.Request, id uint64) {
 		Logger.Add("[GET] request on Categories ID\n Failed to write to response body\n [Query] " + resourceQuery)
 	}
 
+end:
 }
 func cateogoryPUT(w http.ResponseWriter, r *http.Request) {
 	const resourceQuery = "INSERT INTO Category VALUES(NULL, ?)"
@@ -320,13 +324,15 @@ func articlesGET(w http.ResponseWriter) {
 }
 
 func articlesIDGET(w http.ResponseWriter, id uint64) {
-	data, err := model.OneArticleJSON(Database, id)
-	logIT(err)
-	w.WriteHeader(http.StatusOK)
-
-	if _, err := w.Write(data); err != nil {
-		//log server error
-		Logger.Add("[GET] request on ID Articles\n Failed to write to response body\n")
+	if toHighSet(id) {
+		toLargeAPINumberError(w)
+	} else {
+		data, err := model.OneArticleJSON(Database, id)
+		logIT(err)
+		w.WriteHeader(http.StatusOK)
+		if _, err := w.Write(data); err != nil {
+			//log server error
+			Logger.Add("[GET] request on ID Articles\n Failed to write to response body\n")
+		}
 	}
-
 }

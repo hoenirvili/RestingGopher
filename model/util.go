@@ -224,15 +224,9 @@ func OneArticleJSON(database DB, id uint64) ([]byte, error) {
 		fourthQuery = "SELECT com.ID_Comment, usr.Name, usr.Email FROM User AS usr INNER JOIN UserComment ucom ON ucom.ID_User = usr.ID_User INNER JOIN Comment as com ON ucom.ID_Comment = com.ID_Comment ORDER BY com.ID_Comment ASC"
 	)
 	var (
-		article           []Articles
-		holder            Articles
-		timeHolder        []byte
-		imageHolder       Image
-		commentHolder     Comment
-		artcomSliceHolder []articleComment
-		artcomHolder      articleComment
-		idHolder          int
-		indexes           []int
+		article    []Articles
+		holder     Articles
+		timeHolder []byte
 	)
 	//first query merge
 	rows, err := database.Query(firstQuery, id)
@@ -249,108 +243,12 @@ func OneArticleJSON(database DB, id uint64) ([]byte, error) {
 		holder.Time = string(timeHolder)
 		article = append(article, holder)
 	}
-	if err = rows.Err(); err != nil {
-		panic(err)
-	}
 
-	if err = rows.Close(); err != nil {
-		panic(err)
-	}
-
-	// second query merge
-	rows, err = database.Query(secondQeury)
-	if err != nil {
-		return nil, &ErrSQL{Message: fmt.Sprintf("Error on second query from joining Image with Artices")}
-	}
-	for rows.Next() {
-		err := rows.Scan(&imageHolder.ID, &imageHolder.Link)
-		if err != nil {
-			return nil, &ErrSQL{Message: fmt.Sprintf("Error row read from Image,ImageArticle tables")}
-		}
-		article[imageHolder.ID-1].Image = append(article[imageHolder.ID-1].Image, imageHolder)
-	}
-	if err = rows.Err(); err != nil {
-		panic(err)
-	}
-
-	if err = rows.Close(); err != nil {
-		panic(err)
-	}
-
-	// third row
-	rows, err = database.Query(thirdQuery)
-	if err != nil {
-		return nil, &ErrSQL{Message: fmt.Sprintf("Error on third query from joining Article with Comments")}
-	}
-	for rows.Next() {
-		err := rows.Scan(&commentHolder.ID, &timeHolder, &commentHolder.Content)
-		if err != nil {
-			return nil, &ErrSQL{Message: fmt.Sprintf("Error row read from Comment,ArticleComment tables")}
-		}
-		commentHolder.Time = string(timeHolder)
-		article[commentHolder.ID-1].Comments = append(article[commentHolder.ID-1].Comments, commentHolder)
-	}
-
-	if err = rows.Err(); err != nil {
-		panic(err)
-	}
-
-	if err = rows.Close(); err != nil {
-		panic(err)
-	}
-
-	// fourth query
-	rows, err = database.Query(fourthQuery)
-	if err != nil {
-		return nil, &ErrSQL{Message: fmt.Sprintf("Error on fourth query from joinging Comment with User")}
-	}
-	for rows.Next() {
-		err := rows.Scan(&artcomHolder.IDComment, &artcomHolder.UserName, &artcomHolder.UserMail)
-		if err != nil {
-			return nil, &ErrSQL{Message: fmt.Sprintf("Error row read from Comment User tables")}
-		}
-		artcomSliceHolder = append(artcomSliceHolder, artcomHolder)
-	}
 	if err = rows.Err(); err != nil {
 		panic(err)
 	}
 	if err = rows.Close(); err != nil {
 		panic(err)
-	}
-
-	// suplimentar query
-	rows, err = database.Query("SELECT ID_Article FROM ArticleComment ORDER BY ID_Comment WHERE ID_Article = ?", id)
-	if err != nil {
-		return nil, &ErrSQL{Message: fmt.Sprintf("Error on fourth query from joining Comment with User")}
-	}
-	for rows.Next() {
-		err := rows.Scan(&idHolder)
-		if err != nil {
-			return nil, &ErrSQL{Message: fmt.Sprintf("Error row read from Comment User tables")}
-		}
-		indexes = append(indexes, idHolder)
-	}
-	if err = rows.Err(); err != nil {
-		panic(err)
-	}
-	if err = rows.Close(); err != nil {
-		panic(err)
-	}
-
-	// this is the result from very bad sql-ing
-	for i := 0; i < len(article); i++ {
-		for j := 0; j < len(indexes); j++ {
-			if article[i].ID == indexes[i] {
-				for k := 0; k < len(article[i].Comments); k++ {
-					for l := 0; l < len(artcomSliceHolder); l++ {
-						if article[i].Comments[k].ID == artcomSliceHolder[l].IDComment {
-							article[i].Comments[k].User.Name = artcomSliceHolder[l].UserName
-							article[i].Comments[k].User.Email = artcomSliceHolder[l].UserMail
-						}
-					}
-				}
-			}
-		}
 	}
 
 	return json.MarshalIndent(NewPayload(article), "", " ")
