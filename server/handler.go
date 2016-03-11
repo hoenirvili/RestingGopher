@@ -60,7 +60,9 @@ func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Pa
 		case "PUT":
 			articlePUT(w, r)
 		case "DELETE":
+			articleDELETE(w, r)
 		case "POST":
+			articlePOST(w, r)
 		default:
 			internalAPIError(w)
 		}
@@ -73,6 +75,8 @@ func articlesHandler(w http.ResponseWriter, r *http.Request, param httprouter.Pa
 		case "PUT":
 			articleIDPUT(w, r, id)
 		case "DELETE":
+			articleIDDELETE(w, r, id)
+		case "POST":
 		default:
 			internalAPIError(w)
 		}

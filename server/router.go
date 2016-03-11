@@ -47,10 +47,9 @@ func getRoutes() *httprouter.Router {
 	router.GET("/articles/:id", articlesHandler)
 	router.PUT("/articles/", articlesHandler)
 	router.PUT("/articles/:id", articlesHandler)
-
-	//TODO
 	router.DELETE("/articles/", articlesHandler)
 	router.DELETE("/articles/:id", articlesHandler)
+	router.POST("/articles/", articlesHandler)
 
 	// categories router parts
 	router.GET("/categories/", categoriesHandler)

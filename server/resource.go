@@ -372,7 +372,6 @@ func articlesIDGET(w http.ResponseWriter, id uint64) {
 func articlePUT(w http.ResponseWriter, r *http.Request) {
 
 	const (
-		// TODO:INSERT
 		baseQuery = "INSERT INTO Article VALUES(NULL, ? , ?, ?, ?, ?)"
 		//baseQuery       = "UPDATE Article SET Title = ? , Time = ? , Author = ?, Content = ?, ID_Category = ? WHERE ID_Article = ?"
 		isResourceQuery = "SELECT *FROM Article WHERE Title = ?"
@@ -586,11 +585,14 @@ func articleDELETE(w http.ResponseWriter, r *http.Request) {
 		//
 		case model.ErrNoContent:
 			message = "Can't find this resource with the specific id, Please select a valid resource to delete"
+			w.WriteHeader(http.StatusNotFound)
 		case nil:
 			err := Database.Exec(deleteQuery, payload.Data.ID)
 			if err != nil {
 				logIT(err)
+				goto end
 			}
+			w.WriteHeader(http.StatusOK)
 			message = "Successful deleted resource"
 		// we have internal error just treat it
 		default:
@@ -608,8 +610,9 @@ func articleDELETE(w http.ResponseWriter, r *http.Request) {
 			}
 		}{}
 
+		responseJSON.Data.ID = payload.Data.ID
 		responseJSON.Data.Message = message
-		w.WriteHeader(http.StatusOK)
+
 		err := json.NewEncoder(w).Encode(&responseJSON)
 		logIT(err)
 
@@ -617,5 +620,130 @@ func articleDELETE(w http.ResponseWriter, r *http.Request) {
 		appropriateHeaderError(w)
 	}
 
+end:
+}
+
+// articleIDDELETE deletes specific article
+func articleIDDELETE(w http.ResponseWriter, r *http.Request, id uint64) {
+	const deleteQuery = "DELETE FROM Article WHERE ID_Article = ?"
+
+	var (
+		message string
+	)
+
+	// if the high bit is set
+	if toHighSet(id) {
+		toLargeAPINumberError(w)
+	} else {
+
+		_, err = model.OneArticleJSON(Database, id)
+
+		switch err {
+		case model.ErrNoContent:
+			message = "Can't find this resource with the specific id, Please select a valid resource to delete"
+			w.WriteHeader(http.StatusNotFound)
+		case nil:
+			err := Database.Exec(deleteQuery, id)
+			if err != nil {
+				logIT(err)
+			}
+			w.WriteHeader(http.StatusOK)
+			message = "Successful deleted resource"
+		// we have internal error just treat it
+		default:
+			internalAPIError(w)
+			logIT(err)
+			goto end
+		}
+
+		// if everything is fine just
+		// send response JSON
+		responseJSON := struct {
+			Data struct {
+				ID      uint64
+				Message string
+			}
+		}{}
+
+		responseJSON.Data.ID = id
+		responseJSON.Data.Message = message
+
+		err := json.NewEncoder(w).Encode(&responseJSON)
+		logIT(err)
+	}
+end:
+}
+
+func articlePOST(w http.ResponseWriter, r *http.Request) {
+
+	const (
+		baseQuery       = "INSERT INTO Article VALUES(?, ? , ?, ?, ?, ?)"
+		isResourceQuery = "SELECT *FROM Article WHERE Title = ?"
+	)
+
+	var (
+		timeHolder []byte
+		handler    *sql.DB
+	)
+
+	// we have JSON POST request
+	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+		payload := ArticlePayload{}
+		// decody body of request into payload
+		err := json.NewDecoder(r.Body).Decode(&payload)
+		// if the decoding process failed
+		if err != nil || payload.Data.ID == 0 || payload.Data.Title == "" || payload.Data.Time == "" || payload.Data.Author == "" || payload.Data.Content == "" || payload.Data.IDCategory == 0 {
+			Logger.Add("Can't decode json put article request")
+			invalidJSONFormatError(w)
+			// jump to end of func
+			goto end
+		}
+
+		// update databse
+		stmt, err := Database.Prepare(baseQuery)
+		if err != nil {
+			internalAPIError(w)
+			logIT(err)
+			goto end
+		}
+
+		err = Database.ExecStmt(stmt, payload.Data.ID, payload.Data.Title, payload.Data.Time, payload.Data.Author, payload.Data.Content, payload.Data.IDCategory)
+		if err != nil {
+			internalAPIError(w)
+			logIT(err)
+			goto end
+		}
+
+		responseJSON := struct {
+			Data struct {
+				ID         uint64
+				Title      string
+				Time       string
+				Author     string
+				Content    string
+				IDCategory uint64
+				Message    string
+			}
+		}{}
+		responseJSON.Data.Message = "Successful update this single Article resource "
+
+		handler = Database.Handler()
+		err = handler.QueryRow(isResourceQuery, payload.Data.Title).Scan(&responseJSON.Data.ID, &responseJSON.Data.Title, &timeHolder, &responseJSON.Data.Author, &responseJSON.Data.Content, &responseJSON.Data.IDCategory)
+		if err != nil {
+			internalAPIError(w)
+			logIT(err)
+			goto end
+		}
+
+		responseJSON.Data.Time = string(timeHolder)
+
+		// write it response
+		w.WriteHeader(http.StatusCreated)
+		err = json.NewEncoder(w).Encode(responseJSON)
+		logIT(err)
+	} else {
+		appropriateHeaderError(w)
+	}
+	// end of func
 end:
 }
